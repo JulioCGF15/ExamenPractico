@@ -11,7 +11,7 @@ namespace ExamenPractico
 
         // Colección observable: al modificarla, el CollectionView se actualiza solo
         private ObservableCollection<Libro> _libros;
-
+        
         public MainPage()
         {
             InitializeComponent();
