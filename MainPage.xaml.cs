@@ -91,5 +91,22 @@ namespace ExamenPractico
         {
             LabelError.IsVisible = false;
         }
+        private async void CollectionViewLibros_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var libroSeleccionado = e.CurrentSelection.FirstOrDefault() as Libro;
+
+            if (libroSeleccionado == null)
+                return;
+
+            await DisplayAlertAsync(
+                "Libro seleccionado",
+                $"Título: {libroSeleccionado.Titulo}\n" +
+                $"Autores: {libroSeleccionado.Autores}\n" +
+                $"Año: {libroSeleccionado.AnioEdicion}\n" +
+                $"ISBN: {libroSeleccionado.ISBN}",
+                "OK");
+
+            ((CollectionView)sender).SelectedItem = null;
+        }
     }
 }

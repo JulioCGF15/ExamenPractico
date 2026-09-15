@@ -27,18 +27,61 @@
             <BoxView HeightRequest="1" Color="LightGray" Margin="0,10" />
 
             <!-- ===== CollectionView base ===== -->
-            <Label Text="Libros registrados" FontSize="18" FontAttributes="Bold" />
+            <!-- ===== CollectionView ===== -->
+       <Label Text="Libros registrados"
+       FontSize="18"
+       FontAttributes="Bold" />
 
             <CollectionView x:Name="CollectionViewLibros"
-                            SelectionMode="Single">
+                SelectionMode="Single"
+                SelectionChanged="CollectionViewLibros_SelectionChanged">
+
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <VerticalStackLayout Padding="5">
-                            <Label Text="{Binding Titulo}" FontAttributes="Bold" />
-                            <Label Text="{Binding Autores}" FontSize="12" />
-                        </VerticalStackLayout>
+
+                        <Border Margin="5"
+                Padding="10"
+                Stroke="LightGray"
+                StrokeThickness="1">
+
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+
+                            <HorizontalStackLayout Spacing="15">
+
+                                <!-- Portada -->
+                                <Image Source="{Binding UrlPortada}"
+                       HeightRequest="120"
+                       WidthRequest="80"
+                       Aspect="AspectFit" />
+
+                                <!-- Información -->
+                                <VerticalStackLayout VerticalOptions="Center"
+                                     Spacing="5">
+
+                                    <Label Text="{Binding Titulo}"
+                           FontAttributes="Bold"
+                           FontSize="18" />
+
+                                    <Label Text="{Binding Autores}"
+                           FontSize="14" />
+
+                                    <Label Text="{Binding AnioEdicion, StringFormat='Año: {0}'}"
+                           FontSize="14" />
+
+                                    <Label Text="{Binding ISBN, StringFormat='ISBN: {0}'}"
+                           FontSize="14" />
+
+                                </VerticalStackLayout>
+
+                            </HorizontalStackLayout>
+
+                        </Border>
+
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
+
             </CollectionView>
 
         </VerticalStackLayout>
