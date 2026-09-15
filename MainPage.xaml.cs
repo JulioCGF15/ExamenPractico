@@ -1,4 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using CommunityToolkit.Maui;              
+using CommunityToolkit.Maui.Extensions;   
+using CommunityToolkit.Maui.Views;
+using ExamenPractico.Views;
+using System.Collections.ObjectModel;
 using ExamenPractico.Models;
 using ExamenPractico.Services;
 
@@ -11,7 +15,8 @@ namespace ExamenPractico
 
         // Colección observable: al modificarla, el CollectionView se actualiza solo
         private ObservableCollection<Libro> _libros;
-        
+        private Libro? _libroSeleccionado;
+        private bool _ocupado;
         public MainPage()
         {
             InitializeComponent();
@@ -91,22 +96,113 @@ namespace ExamenPractico
         {
             LabelError.IsVisible = false;
         }
-        private async void CollectionViewLibros_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void CollectionViewLibros_SelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            var libroSeleccionado = e.CurrentSelection.FirstOrDefault() as Libro;
+            _libroSeleccionado = e.CurrentSelection.FirstOrDefault() as Libro;
+            MostrarDetalle(_libroSeleccionado);
+        }
 
-            if (libroSeleccionado == null)
+        private void MostrarDetalle(Libro? libro)
+        {
+            if(libro is null)
+            {
+                PanelDetalle.IsVisible = false;
+                return;
+            }
+            LblDetalleTitulo.Text = libro.Titulo;
+            LblDetalleAutores.Text = string.IsNullOrWhiteSpace(libro.Autores) ? "(sin autores)" : libro.Autores;
+            LblDetalleAnio.Text = $"Año: {libro.AnioEdicion}";
+            LblDetalleIsbn.Text = $"ISBN: {libro.ISBN}";
+
+            ImgDetallePortada.Source = Uri.TryCreate(libro.UrlPortada, UriKind.Absolute, out var uri) 
+                ? ImageSource.FromUri(uri)
+                : null;
+
+            PanelDetalle.IsVisible = true;
+        }
+
+        private async void BtnEditar_Clicked(object sender, EventArgs e)
+        {
+            if (_ocupado) return;
+            _ocupado = true;
+            try 
+            {
+                var original = _libroSeleccionado;
+                if(original is null)
+            {
+                await DisplayAlertAsync("Aviso", "Selecciona un libro primero.", "OK");
+                return;
+            }
+
+            var copia = new Libro
+            {
+                Id = original.Id,
+                Titulo = original.Titulo,
+                Autores = original.Autores,
+                AnioEdicion = original.AnioEdicion,
+                ISBN = original.ISBN,
+                UrlPortada = original.UrlPortada
+            };
+
+            var popup = new LibroPopup(copia);
+                var resultado = await this.ShowPopupAsync<Libro>(popup, new PopupOptions { Shape = null }, CancellationToken.None);
+                
+                if (resultado.WasDismissedByTappingOutsideOfPopup)
                 return;
 
-            await DisplayAlertAsync(
-                "Libro seleccionado",
-                $"Título: {libroSeleccionado.Titulo}\n" +
-                $"Autores: {libroSeleccionado.Autores}\n" +
-                $"Año: {libroSeleccionado.AnioEdicion}\n" +
-                $"ISBN: {libroSeleccionado.ISBN}",
-                "OK");
+                if (resultado.Result is Libro editado)
+                    ActualizarLibro(original, editado); 
+            }
+            finally { _ocupado = false; }
+        }
 
-            ((CollectionView)sender).SelectedItem = null;
+        private void ActualizarLibro(Libro original, Libro editado)
+        {
+            //var actual =_libros.FirstOrDefault(l => l.Id == editado.Id);
+            //if (actual is null)
+            //    return;
+
+            int indice = _libros.IndexOf(original);
+            if (indice < 0) return;
+
+            _libros[indice] = editado;
+
+            _libroSeleccionado = editado;
+            CollectionViewLibros.SelectedItem = editado;
+            MostrarDetalle(editado);
+
+            GuardarCambios();
+        }
+
+        private async void BtnEliminar_Clicked(object sender, EventArgs e)
+        {
+            if (_ocupado) return;
+            _ocupado = true;
+            try
+            {
+                var aEliminar = _libroSeleccionado;
+                if (aEliminar is null)
+                {
+                    await DisplayAlertAsync("Aviso", "Selecciona un libro primero.", "OK");
+                    return;
+                }
+
+                bool confirmar = await DisplayAlertAsync(
+                    "Confirmar",
+                    $"¿Está seguro de eliminar este registro?\n\n{aEliminar.Titulo}",
+                    "Sí", "No");
+
+                if (!confirmar)
+                    return;
+
+                _libros.Remove(aEliminar);
+                _libroSeleccionado = null;
+                CollectionViewLibros.SelectedItem = null;
+                MostrarDetalle(null);
+
+                GuardarCambios();
+            }
+            finally { _ocupado = false; }
         }
     }
 }
