@@ -33,6 +33,7 @@
        FontAttributes="Bold" />
 
             <CollectionView x:Name="CollectionViewLibros"
+                HeightRequest="320"
                 SelectionMode="Single"
                 SelectionChanged="CollectionViewLibros_SelectionChanged">
 
@@ -83,6 +84,34 @@
                 </CollectionView.ItemTemplate>
 
             </CollectionView>
+
+            <Border x:Name="PanelDetalle"
+                    IsVisible="False"
+                    Padding="12"
+                    Stroke="#512BD4"
+                    StrokeThickness="2">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <HorizontalStackLayout Spacing="15">
+                    <Image x:Name="ImgDetallePortada"
+                           HeightRequest="140"
+                           WidthRequest="95"
+                           Aspect="AspectFit" />
+                    <VerticalStackLayout VerticalOptions="Center" Spacing="4">
+                        <Label Text="LIBRO SELECCIONADO" FontSize="12" TextColor="Gray" />
+                        <Label x:Name="LblDetalleTitulo" FontSize="18" FontAttributes="Bold" />
+                        <Label x:Name="LblDetalleAutores" FontSize="14" />
+                        <Label x:Name="LblDetalleAnio" FontSize="14" />
+                        <Label x:Name="LblDetalleIsbn" FontSize="14" />
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </Border>
+
+            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                <Button x:Name="BtnEditar" Text="Editar" Clicked="BtnEditar_Clicked"/>
+                <Button x:Name="BtnEliminar" Text="Eliminar" Clicked="BtnEliminar_Clicked"/>
+            </HorizontalStackLayout>
 
         </VerticalStackLayout>
     </ScrollView>
